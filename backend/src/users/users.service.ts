@@ -40,4 +40,21 @@ export class UsersService {
   async findByUsername(username: string): Promise<User | null> {
     return this.repo.findOne({ where: { username } });
   }
+  // src/users/users.service.ts (additions)
+  async findAll(page = 1, limit = 10) {
+    const [items, total] = await this.repo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: 'ASC' },
+      relations: ['posts', 'comments'],
+      select: ['id', 'username', 'email'], // ensure password excluded
+    });
+    return { items, total, page, limit };
+  }
+
+  async remove(id: number) {
+    const user = await this.findById(id);
+    return this.repo.remove(user);
+  }
+
 }

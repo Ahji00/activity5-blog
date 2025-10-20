@@ -1,21 +1,56 @@
 // src/users/users.controller.ts
-import { Controller, Get, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post as HttpPost,
+  Body,
+  Delete,
+  UseGuards,
+  Req,
+  ParseIntPipe,
+   NotFoundException, 
+  Query,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/user.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const user = await this.usersService.findOne(+id);
-    if (user) {
-      // remove password before returning
-      delete (user as any).password;
-    }
+  @HttpPost()
+  async create(@Body() dto: CreateUserDto) {
+    const user = await this.usersService.create(dto.username, dto.email, dto.password);
+    delete (user as any).password;
     return user;
   }
 
-  // if you have another method that previously set undefined, use delete there too:
-  // delete (user as any).password;
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async findAll(@Query() pagination: PaginationDto) {
+    const page = pagination.page ? Number(pagination.page) : 1;
+    const limit = pagination.limit ? Number(pagination.limit) : 10;
+    return this.usersService.findAll(page, limit);
+  }
+
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.usersService.findOne(id);
+    delete (user as any).password;
+    return user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    // optionally only allow admin or self-delete. Here, allow self only:
+    if (req.user.id !== id) {
+      // For simplicity, throw NotFound to avoid leaking info
+      throw new NotFoundException('User not found');
+    }
+    return this.usersService.remove(id);
+  }
 }

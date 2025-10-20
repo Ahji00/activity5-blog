@@ -1,14 +1,19 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Post } from './entities/post.entity';
 import { PostsService } from './posts.service';
 import { PostsController } from './posts.controller';
-import { UsersModule } from '../users/users.module'; // import UsersModule to access UsersService
+import { Post } from './entities/post.entity';
+import { UsersModule } from '../users/users.module';
+import { CommentsModule } from '../comments/comments.module'; // keep import
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Post]), UsersModule],
-  providers: [PostsService],
+  imports: [
+    TypeOrmModule.forFeature([Post]),
+    UsersModule,
+    forwardRef(() => CommentsModule), // ✅ this line fixes circular dependency
+  ],
   controllers: [PostsController],
+  providers: [PostsService],
   exports: [PostsService],
 })
 export class PostsModule {}

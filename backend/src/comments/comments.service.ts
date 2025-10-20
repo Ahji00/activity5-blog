@@ -3,7 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Comment } from './entities/comment.entity';
-import { CreateCommentDto } from './dto/comment.dto';
+import { CreateCommentDto, UpdateCommentDto } from './dto/comment.dto';
 import { User } from '../users/entities/users.entity';
 import { Post } from '../posts/entities/post.entity';
 
@@ -16,9 +16,19 @@ export class CommentsService {
 
   async create(createCommentDto: CreateCommentDto, user: User, post: Post) {
     const { content } = createCommentDto;
-    // create expects entity property names that match the entity (user, post, content)
     const comment = this.repo.create({ content, user, post });
     return this.repo.save(comment);
+  }
+
+  async findAllByPost(postId: number, page = 1, limit = 10) {
+    const [items, total] = await this.repo.findAndCount({
+      where: { post: { id: postId } },
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: 'ASC' },
+      relations: ['user', 'post'],
+    });
+    return { items, total, page, limit };
   }
 
   async findOne(id: number) {
@@ -27,5 +37,21 @@ export class CommentsService {
     return comment;
   }
 
-  // ... other methods
+  async update(id: number, dto: UpdateCommentDto, user: User) {
+    const comment = await this.findOne(id);
+    if (comment.user.id !== user.id) {
+      // optionally throw ForbiddenException if not owner
+      throw new NotFoundException('Comment not found');
+    }
+    Object.assign(comment, dto);
+    return this.repo.save(comment);
+  }
+
+  async remove(id: number, user: User) {
+    const comment = await this.findOne(id);
+    if (comment.user.id !== user.id) {
+      throw new NotFoundException('Comment not found');
+    }
+    return this.repo.remove(comment);
+  }
 }
