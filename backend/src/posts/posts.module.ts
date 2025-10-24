@@ -3,14 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostsService } from './posts.service';
 import { PostsController } from './posts.controller';
 import { Post } from './entities/post.entity';
-import { UsersModule } from '../users/users.module';
-import { CommentsModule } from '../comments/comments.module'; // keep import
+import { User } from '../users/entities/users.entity';
+import { CommentsModule } from '../comments/comments.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Post]),
-    UsersModule,
-    forwardRef(() => CommentsModule), // ✅ this line fixes circular dependency
+    TypeOrmModule.forFeature([Post, User]),
+    forwardRef(() => CommentsModule),
   ],
   controllers: [PostsController],
   providers: [PostsService],

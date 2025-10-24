@@ -6,26 +6,33 @@ import {
   Get,
   Param,
   Query,
-  Put, // ✅ changed from Patch to Put
+  Put,
   Delete,
   UseGuards,
   ParseIntPipe,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
-import { CreateCommentDto, UpdateCommentDto } from './dto/comment.dto';
 import { PostsService } from '../posts/posts.service';
+import { CreateCommentDto, UpdateCommentDto } from './dto/comment.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ApiBearerAuth, ApiTags, ApiBody } from '@nestjs/swagger';
 import { PaginationDto } from '../common/dto/pagination.dto';
 
+@ApiTags('comments')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('comments')
 export class CommentsController {
   constructor(
     private readonly commentsService: CommentsService,
+    @Inject(forwardRef(() => PostsService))
     private readonly postsService: PostsService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
   @HttpPost()
+  @ApiBody({ type: CreateCommentDto })
   async create(@Body() dto: CreateCommentDto, @Req() req: any) {
     const post = await this.postsService.findOne(dto.postId);
     return this.commentsService.create(dto, req.user, post);
@@ -41,8 +48,8 @@ export class CommentsController {
     return this.commentsService.findAllByPost(postId, page, limit);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Put(':id') // ✅ changed from @Patch to @Put
+  @Put(':id')
+  @ApiBody({ type: UpdateCommentDto })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateCommentDto,
@@ -51,7 +58,6 @@ export class CommentsController {
     return this.commentsService.update(id, dto, req.user);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
     return this.commentsService.remove(id, req.user);

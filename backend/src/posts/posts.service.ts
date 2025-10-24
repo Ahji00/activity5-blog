@@ -1,4 +1,3 @@
-// src/posts/posts.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,7 +22,7 @@ export class PostsService {
       skip: (page - 1) * limit,
       take: limit,
       order: { id: 'DESC' },
-      relations: ['user', 'comments', 'comments.user'],
+      relations: ['user'],
     });
     return { items, total, page, limit };
   }
@@ -31,7 +30,7 @@ export class PostsService {
   async findOne(id: number) {
     const post = await this.repo.findOne({
       where: { id },
-      relations: ['user', 'comments', 'comments.user'],
+      relations: ['user', 'comments'],
     });
     if (!post) throw new NotFoundException('Post not found');
     return post;

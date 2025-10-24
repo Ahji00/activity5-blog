@@ -1,4 +1,3 @@
-// src/comments/comments.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -32,7 +31,10 @@ export class CommentsService {
   }
 
   async findOne(id: number) {
-    const comment = await this.repo.findOne({ where: { id } });
+    const comment = await this.repo.findOne({
+      where: { id },
+      relations: ['user', 'post'],
+    });
     if (!comment) throw new NotFoundException('Comment not found');
     return comment;
   }
@@ -40,7 +42,6 @@ export class CommentsService {
   async update(id: number, dto: UpdateCommentDto, user: User) {
     const comment = await this.findOne(id);
     if (comment.user.id !== user.id) {
-      // optionally throw ForbiddenException if not owner
       throw new NotFoundException('Comment not found');
     }
     Object.assign(comment, dto);

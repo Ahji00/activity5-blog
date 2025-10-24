@@ -1,5 +1,11 @@
-// src/comments/entities/comment.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from '../../users/entities/users.entity';
 import { Post } from '../../posts/entities/post.entity';
 
@@ -8,12 +14,18 @@ export class Comment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('text')
+  @Column({ type: 'text' })
   content: string;
 
-  @ManyToOne(() => User, (user: User) => user.comments, { eager: true, onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.comments, { eager: false })
   user: User;
 
-  @ManyToOne(() => Post, (post: Post) => post.comments, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Post, (post) => post.comments, { eager: false })
   post: Post;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

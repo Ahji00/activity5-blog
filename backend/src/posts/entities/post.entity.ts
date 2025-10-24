@@ -1,5 +1,12 @@
-// src/posts/entities/post.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from '../../users/entities/users.entity';
 import { Comment } from '../../comments/entities/comment.entity';
 
@@ -11,12 +18,18 @@ export class Post {
   @Column()
   title: string;
 
-  @Column('text')
+  @Column({ type: 'text' })
   content: string;
 
-  @ManyToOne(() => User, (user) => user.posts, { eager: true, onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.posts, { eager: false })
   user: User;
 
   @OneToMany(() => Comment, (comment) => comment.post, { cascade: true })
   comments: Comment[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

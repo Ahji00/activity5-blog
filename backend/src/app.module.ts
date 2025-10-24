@@ -1,7 +1,8 @@
-// src/app.module.ts
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { PostsModule } from './posts/posts.module';
@@ -13,21 +14,24 @@ import { CommentsModule } from './comments/comments.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: (config: ConfigService) => ({
         type: 'mysql',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT') || 3306,
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_DATABASE'),
-        autoLoadEntities: true,
-        synchronize: true,
+        host: config.get<string>('DB_HOST'),
+        port: config.get<number>('DB_PORT'),
+        username: config.get<string>('DB_USERNAME'),
+        password: config.get<string>('DB_PASSWORD'),
+        database: config.get<string>('DB_DATABASE'), // must exist
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true, // dev only
+        logging: true,
       }),
     }),
     UsersModule,
     AuthModule,
-    PostsModule,
-    CommentsModule,
+    forwardRef(() => PostsModule),
+    forwardRef(() => CommentsModule),
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

@@ -4,13 +4,13 @@ import { CommentsService } from './comments.service';
 import { CommentsController } from './comments.controller';
 import { Comment } from './entities/comment.entity';
 import { UsersModule } from '../users/users.module';
-import { PostsModule } from '../posts/posts.module'; // keep import
+import { PostsModule } from '../posts/posts.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Comment]),
     UsersModule,
-    forwardRef(() => PostsModule), // ✅ important change here
+    forwardRef(() => PostsModule),
   ],
   controllers: [CommentsController],
   providers: [CommentsService],
