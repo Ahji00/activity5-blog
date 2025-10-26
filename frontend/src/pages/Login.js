@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import api from '../api/api';
 import { setToken } from '../utils/auth';
 import { useNavigate } from 'react-router-dom';
+import '../css/login.css';
+
 
 export default function Login() {
   const [email, setEmail] = useState('');

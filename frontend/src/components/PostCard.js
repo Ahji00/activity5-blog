@@ -1,12 +1,18 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import '../css/PostCard.css';
 
 export default function PostCard({ post }) {
   return (
-    <div>
-      <h3>{post.title}</h3>
-      <p>by {post.user?.username}</p>
-      <Link to={`/posts/${post.id}`}>View</Link>
+    <div className="post-card">
+      <div className="post-header">
+        <h3>{post.title}</h3>
+        <span className="post-author">by {post.user?.username || 'Unknown'}</span>
+      </div>
+      <p>{post.content}</p>
+      <NavLink to={`/posts/${post.id}`} className="view-post">
+        View
+      </NavLink>
     </div>
   );
 }

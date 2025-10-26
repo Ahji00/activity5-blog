@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api from '../api/api';
 import { useNavigate } from 'react-router-dom';
-
+import '../css/CreatePost.css';
 export default function CreatePost() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -18,7 +18,7 @@ export default function CreatePost() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+      <form className="create-post-form" onSubmit={handleSubmit}>
       <h2>Create Post</h2>
       <input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
       <textarea placeholder="Content" value={content} onChange={(e) => setContent(e.target.value)} />

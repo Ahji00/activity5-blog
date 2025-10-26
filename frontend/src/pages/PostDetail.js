@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/api';
 import CommentCard from '../components/CommentCard';
-
+import'../css/PostDetail.css';
 export default function PostDetail() {
   const { id } = useParams();
   const [post, setPost] = useState(null);
@@ -29,7 +29,7 @@ export default function PostDetail() {
   if (!post) return <div>Loading...</div>;
 
   return (
-    <div>
+    <div className="post-detail">
       <h2>{post.title}</h2>
       <p>{post.content}</p>
       <h3>Comments</h3>
